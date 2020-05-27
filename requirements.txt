@@ -1,0 +1,5 @@
+python-decouple
+tweepy
+schedule
+python-dateutil
+pytz
