@@ -73,7 +73,7 @@ def job():
         print("Infelizmente não há conexão com os dados")
 
 
-periodicidade_minutos = 90
+periodicidade_minutos = 240
 schedule.every(periodicidade_minutos).minutes.do(job)
 
 while 1:
