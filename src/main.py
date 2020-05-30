@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
-import os, json, tweepy, requests, schedule, time, datetime, dateutil, pytz
+import os, json, tweepy, requests, schedule, time, datetime, dateutil, pytz, locale
 from dateutil.parser import parse
 from autentica import Autentica
 
 autentica = Autentica()
 
 def job():
-    api = autentica.api(os.environ['CONSUMER_KEY'], os.environ['CONSUMER_SECRET'], os.environ['ACCESS_TOKEN'], os.environ['ACCESS_TOKEN_SECRET'])
-    user = autentica.usuario(api)
+    api           = autentica.api(os.environ['CONSUMER_KEY'], os.environ['CONSUMER_SECRET'], os.environ['ACCESS_TOKEN'], os.environ['ACCESS_TOKEN_SECRET'])
+    user          = autentica.usuario(api)
     chamada       = requests.get('https://covid19-brazil-api.now.sh/api/report/v1/brazil')
     chamadaBackup = requests.get('https://coronavirus-tracker-api.herokuapp.com/v2/locations?country_code=BR')
+    locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+
 
     if chamada.status_code == requests.codes.ok:
 
@@ -18,11 +20,11 @@ def job():
 
 
         pais        = '{country}'.format(**dados_json["data"])
-        mortes      = '{deaths}'.format(**dados_json["data"])
+        mortes      = locale.format("%d", int('{deaths}'.format(**dados_json["data"])), grouping=True)
         data        = '{updated_at}'.format(**dados_json["data"])
-        recuperados = '{recovered}'.format(**dados_json["data"])
-        casosAtivos = '{cases}'.format(**dados_json["data"])
-        casosTotais = '{confirmed}'.format(**dados_json["data"])
+        recuperados = locale.format("%d", int('{recovered}'.format(**dados_json["data"])), grouping=True)
+        casosAtivos = locale.format("%d", int('{cases}'.format(**dados_json["data"])), grouping=True)
+        casosTotais = locale.format("%d", int('{confirmed}'.format(**dados_json["data"])), grouping=True)
 
         data      = dateutil.parser.isoparse(data)
         data      = data.astimezone(pytz.timezone("America/Sao_Paulo"))
@@ -48,8 +50,8 @@ def job():
         dados_json = json.loads(chamada.content)
 
 
-        mortes      = '{deaths}'.format(**dados_json["latest"])
-        casosAtivos = '{confirmed}'.format(**dados_json["latest"])
+        mortes      = locale.format("%d", int('{deaths}'.format(**dados_json["latest"])), grouping=True)
+        casosAtivos = locale.format("%d", int('{confirmed}'.format(**dados_json["latest"])), grouping=True)
         data        = '{last_updated}'.format(**dados_json["locations"][0])
 
         data      = dateutil.parser.isoparse(data)
