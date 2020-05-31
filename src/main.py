@@ -20,18 +20,18 @@ def job():
 
 
         pais        = '{country}'.format(**dados_json["data"])
-        mortes      = locale.format("%d", int('{deaths}'.format(**dados_json["data"])), grouping=True)
+        mortes      = '{0:n}'.format(int('{deaths}'.format(**dados_json["data"])))
         data        = '{updated_at}'.format(**dados_json["data"])
-        recuperados = locale.format("%d", int('{recovered}'.format(**dados_json["data"])), grouping=True)
-        casosAtivos = locale.format("%d", int('{cases}'.format(**dados_json["data"])), grouping=True)
-        casosTotais = locale.format("%d", int('{confirmed}'.format(**dados_json["data"])), grouping=True)
+        recuperados = '{0:n}'.format(int('{recovered}'.format(**dados_json["data"])))
+        casosAtivos = '{0:n}'.format(int('{cases}'.format(**dados_json["data"])))
+        casosTotais = '{0:n}'.format(int('{confirmed}'.format(**dados_json["data"])))
 
         data      = dateutil.parser.isoparse(data)
         data      = data.astimezone(pytz.timezone("America/Sao_Paulo"))
-        dataCompleta = "%s/%s/%s %s:%s" % (data.day, data.month, data.year, data.hour, data.minute)
+        data = "%s/%s/%s %s:%s" % (data.day, data.month, data.year, data.hour, data.minute)
 
 
-        status_template = "Relatório Covid-19: \n \nPaís: Brasil \nCasos Totais: %s \nCasos Ativos: %s \nRecuperados: %s \nNúmero de Mortes: %s\n\n" +  "Dados disponibilizados em: " +dataCompleta + "\nFonte: https://covid.saude.gov.br/"
+        status_template = "Relatório Covid-19: \n \nPaís: Brasil \nCasos Totais: %s \nCasos Ativos: %s \nRecuperados: %s \nNúmero de Mortes: %s\n\n" +  "Dados disponibilizados em: " + data + "\nFonte: https://covid.saude.gov.br/"
         status_template = status_template % (casosTotais,casosAtivos,recuperados,mortes)
 
         try:
@@ -50,16 +50,16 @@ def job():
         dados_json = json.loads(chamada.content)
 
 
-        mortes      = locale.format("%d", int('{deaths}'.format(**dados_json["latest"])), grouping=True)
-        casosAtivos = locale.format("%d", int('{confirmed}'.format(**dados_json["latest"])), grouping=True)
+        mortes      = '{0:n}'.format(int('{deaths}'.format(**dados_json["latest"])))
+        casosAtivos = '{0:n}'.format(int('{confirmed}'.format(**dados_json["latest"])))
         data        = '{last_updated}'.format(**dados_json["locations"][0])
 
         data      = dateutil.parser.isoparse(data)
         data      = data.astimezone(pytz.timezone("America/Sao_Paulo"))
-        dataCompleta = "%s/%s/%s %s:%s" % (data.day, data.month, data.year, data.hour, data.minute)
+        data      = "%s/%s/%s %s:%s" % (data.day, data.month, data.year, data.hour, data.minute)
 
 
-        status_template = "Relatório Covid-19: \n\nPaís: Brasil \nCasos Totais: %s \nNúmero de Mortes: %s\n\n" + "Dados disponibilizados em: " + dataCompleta + "\nFonte: Johns Hopkins University"
+        status_template = "Relatório Covid-19: \n\nPaís: Brasil \nCasos Totais: %s \nNúmero de Mortes: %s\n\n" + "Dados disponibilizados em: " + data + "\nFonte: Johns Hopkins University"
         status          = status_template % (casosAtivos, mortes)
 
         try:
