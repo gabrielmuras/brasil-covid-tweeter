@@ -59,7 +59,7 @@ def job():
         data      = "%s/%s/%s %s:%s" % (data.day, data.month, data.year, data.hour, data.minute)
 
 
-        status_template = "Relatório Covid-19: \n\nPaís: Brasil \nCasos Totais: %s \nNúmero de Mortes: %s\n\n" + "Dados disponibilizados em: " + data + "\nFonte: Johns Hopkins University"
+        status_template = "Relatório Covid-19: \n\nPaís: Brasil \nCasos Totais: %s \nNúmero de Mortes: %s\n\n" + "Dados disponibilizados em: " + dataCompleta + "\nFonte: Johns Hopkins University"
         status          = status_template % (casosAtivos, mortes)
 
         try:
