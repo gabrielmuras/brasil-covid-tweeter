@@ -4,3 +4,4 @@ schedule
 python-dateutil
 pytz
 wget
+bs4
