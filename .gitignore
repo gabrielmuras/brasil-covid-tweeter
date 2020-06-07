@@ -1,5 +1,6 @@
 *.pyc
-teste.py
-teste2.sh
-teste2.py
+old*
+teste*.sh
 OLD_Dockerfile
+teste*.py
+*.txt
