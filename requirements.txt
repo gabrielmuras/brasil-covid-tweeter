@@ -3,3 +3,4 @@ tweepy
 schedule
 python-dateutil
 pytz
+wget
