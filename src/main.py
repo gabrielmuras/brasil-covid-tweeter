@@ -1,71 +1,47 @@
 # -*- coding: utf-8 -*-
-import os, json, tweepy, requests, schedule, time, datetime, dateutil, pytz, locale
-from dateutil.parser import parse
-from autentica import Autentica
+import tweepy, schedule, time, os
+from obtemDados import *
+from autentica import *
+from formataDados import *
 
-autentica = Autentica()
+auth   = Autentica()
+dados  = ObtemDados()
+format = FormataDados()
+
+urlMeters     = "https://www.worldometers.info/coronavirus/country/brazil/"
+urlHopkins    = "https://coronavirus-tracker-api.herokuapp.com/v2/locations?country_code=BR"
 
 def job():
-    api           = autentica.api(os.environ['CONSUMER_KEY'], os.environ['CONSUMER_SECRET'], os.environ['ACCESS_TOKEN'], os.environ['ACCESS_TOKEN_SECRET'])
-    user          = autentica.usuario(api)
-    chamada       = requests.get('https://covid19-brazil-api.now.sh/api/report/v1/brazil')
-    chamadaBackup = requests.get('https://coronavirus-tracker-api.herokuapp.com/v2/locations?country_code=BR')
-    locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+    api           = auth.api(os.environ['CONSUMER_KEY'], os.environ['CONSUMER_SECRET'], os.environ['ACCESS_TOKEN'], os.environ['ACCESS_TOKEN_SECRET'])
+    user          = auth.usuario(api)
 
+    if dados.chamaAPI(urlMeters).status_code == requests.codes.ok:
 
-    if chamada.status_code == requests.codes.ok:
-
-        chamada = requests.get('https://covid19-brazil-api.now.sh/api/report/v1/brazil')
-        dados_json = json.loads(chamada.content)
-
-
-        pais        = '{country}'.format(**dados_json["data"])
-        mortes      = '{0:n}'.format(int('{deaths}'.format(**dados_json["data"])))
-        data        = '{updated_at}'.format(**dados_json["data"])
-        recuperados = '{0:n}'.format(int('{recovered}'.format(**dados_json["data"])))
-        casosAtivos = '{0:n}'.format(int('{cases}'.format(**dados_json["data"])))
-        casosTotais = '{0:n}'.format(int('{confirmed}'.format(**dados_json["data"])))
-
-        data      = dateutil.parser.isoparse(data)
-        data      = data.astimezone(pytz.timezone("America/Sao_Paulo"))
-        data = "%s/%s/%s %s:%s" % (data.day, data.month, data.year, data.hour, data.minute)
-
-
-        status_template = "Relatório Covid-19: \n \nPaís: Brasil \nCasos Totais: %s \nCasos Ativos: %s \nRecuperados: %s \nNúmero de Mortes: %s\n\n" +  "Dados disponibilizados em: " + data + "\nFonte: https://covid.saude.gov.br/"
-        status_template = status_template % (casosTotais,casosAtivos,recuperados,mortes)
+        chamada = dados.consomeHTML(urlMeters)
 
         try:
-            api.update_status(status_template)
-            print(status_template)
+            api.update_status(format.htmlWorldMeters(chamada))
+            print(format.htmlWorldMeters(chamada))
+
         except tweepy.TweepError as error:
+
             if error.api_code == 187:
                 print('Mensagem Duplicada')
+
             else:
                 raise error
 
 
-    elif chamadaBackup.status_code == requests.codes.ok:
+    elif dados.chamaAPI(urlHopkins).status_code == requests.codes.ok:
 
-        chamada = requests.get('https://coronavirus-tracker-api.herokuapp.com/v2/locations?country_code=BR')
-        dados_json = json.loads(chamada.content)
-
-
-        mortes      = '{0:n}'.format(int('{deaths}'.format(**dados_json["latest"])))
-        casosAtivos = '{0:n}'.format(int('{confirmed}'.format(**dados_json["latest"])))
-        data        = '{last_updated}'.format(**dados_json["locations"][0])
-
-        data      = dateutil.parser.isoparse(data)
-        data      = data.astimezone(pytz.timezone("America/Sao_Paulo"))
-        data      = "%s/%s/%s %s:%s" % (data.day, data.month, data.year, data.hour, data.minute)
-
-
-        status_template = "Relatório Covid-19: \n\nPaís: Brasil \nCasos Totais: %s \nNúmero de Mortes: %s\n\n" + "Dados disponibilizados em: " + dataCompleta + "\nFonte: Johns Hopkins University"
-        status          = status_template % (casosAtivos, mortes)
+        chamada = dados.chamaAPI(urlHopkins)
 
         try:
-            api.update_status(status_template)
-            print(status)
+            api.update_status(format.apiJohnHopkins(chamada))
+            print(format.apiJohnHopkins(chamada))
+
         except tweepy.TweepError as error:
+
             if error.api_code == 187:
                 print('Mensagem Duplicada')
             else:
